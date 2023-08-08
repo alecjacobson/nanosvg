@@ -56,7 +56,7 @@ extern "C" {
 /* Example Usage:
 	// Load SVG
 	NSVGimage* image;
-	image = nsvgParseFromFile("test.svg", "px", 96);
+	image = nsvgParseFromFile("test.svg", "px", 96, 1);
 	printf("size: %f x %f\n", image->width, image->height);
 	// Use...
 	for (NSVGshape *shape = image->shapes; shape != NULL; shape = shape->next) {
@@ -167,11 +167,11 @@ typedef struct NSVGimage
 } NSVGimage;
 
 // Parses SVG file from a file, returns SVG image as paths.
-NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi);
+NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi, int scale_to_viewbox);
 
 // Parses SVG file from a null terminated string, returns SVG image as paths.
 // Important note: changes the string.
-NSVGimage* nsvgParse(char* input, const char* units, float dpi);
+NSVGimage* nsvgParse(char* input, const char* units, float dpi, int scale_to_viewbox);
 
 // Duplicates a path.
 NSVGpath* nsvgDuplicatePath(NSVGpath* p);
@@ -2991,7 +2991,7 @@ static void nsvg__createGradients(NSVGparser* p)
 	}
 }
 
-NSVGimage* nsvgParse(char* input, const char* units, float dpi)
+NSVGimage* nsvgParse(char* input, const char* units, float dpi, int scale_to_viewbox)
 {
 	NSVGparser* p;
 	NSVGimage* ret = 0;
@@ -3008,7 +3008,10 @@ NSVGimage* nsvgParse(char* input, const char* units, float dpi)
 	nsvg__createGradients(p);
 
 	// Scale to viewBox
-	nsvg__scaleToViewbox(p, units);
+        if(scale_to_viewbox)
+        {
+          nsvg__scaleToViewbox(p, units);
+        }
 
 	ret = p->image;
 	p->image = NULL;
@@ -3018,7 +3021,7 @@ NSVGimage* nsvgParse(char* input, const char* units, float dpi)
 	return ret;
 }
 
-NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi)
+NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi, int scale_to_viewbox)
 {
 	FILE* fp = NULL;
 	size_t size;
@@ -3035,7 +3038,7 @@ NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi)
 	if (fread(data, 1, size, fp) != size) goto error;
 	data[size] = '\0';	// Must be null terminated.
 	fclose(fp);
-	image = nsvgParse(data, units, dpi);
+	image = nsvgParse(data, units, dpi, scale_to_viewbox);
 	free(data);
 
 	return image;
