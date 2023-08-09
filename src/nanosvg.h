@@ -62,7 +62,7 @@ extern "C" {
 	for (NSVGshape *shape = image->shapes; shape != NULL; shape = shape->next) {
 		for (NSVGpath *path = shape->paths; path != NULL; path = path->next) {
 			for (int i = 0; i < path->npts-1; i += 3) {
-				float* p = &path->pts[i*2];
+				double* p = &path->pts[i*2];
 				drawCubicBez(p[0],p[1], p[2],p[3], p[4],p[5], p[6],p[7]);
 			}
 		}
@@ -108,13 +108,13 @@ enum NSVGflags {
 
 typedef struct NSVGgradientStop {
 	unsigned int color;
-	float offset;
+	double offset;
 } NSVGgradientStop;
 
 typedef struct NSVGgradient {
-	float xform[6];
+	double xform[6];
 	char spread;
-	float fx, fy;
+	double fx, fy;
 	int nstops;
 	NSVGgradientStop stops[1];
 } NSVGgradient;
@@ -129,10 +129,10 @@ typedef struct NSVGpaint {
 
 typedef struct NSVGpath
 {
-	float* pts;					// Cubic bezier points: x0,y0, [cpx1,cpx1,cpx2,cpy2,x1,y1], ...
+	double* pts;					// Cubic bezier points: x0,y0, [cpx1,cpx1,cpx2,cpy2,x1,y1], ...
 	int npts;					// Total number of bezier points.
 	char closed;				// Flag indicating if shapes should be treated as closed.
-	float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
+	double bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
 	struct NSVGpath* next;		// Pointer to next path, or NULL if last element.
 } NSVGpath;
 
@@ -141,37 +141,37 @@ typedef struct NSVGshape
 	char id[64];				// Optional 'id' attr of the shape or its group
 	NSVGpaint fill;				// Fill paint
 	NSVGpaint stroke;			// Stroke paint
-	float opacity;				// Opacity of the shape.
-	float strokeWidth;			// Stroke width (scaled).
-	float strokeDashOffset;		// Stroke dash offset (scaled).
-	float strokeDashArray[8];	// Stroke dash array (scaled).
+	double opacity;				// Opacity of the shape.
+	double strokeWidth;			// Stroke width (scaled).
+	double strokeDashOffset;		// Stroke dash offset (scaled).
+	double strokeDashArray[8];	// Stroke dash array (scaled).
 	char strokeDashCount;		// Number of dash values in dash array.
 	char strokeLineJoin;		// Stroke join type.
 	char strokeLineCap;			// Stroke cap type.
-	float miterLimit;			// Miter limit
+	double miterLimit;			// Miter limit
 	char fillRule;				// Fill rule, see NSVGfillRule.
 	unsigned char flags;		// Logical or of NSVG_FLAGS_* flags
-	float bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
+	double bounds[4];			// Tight bounding box of the shape [minx,miny,maxx,maxy].
 	char fillGradient[64];		// Optional 'id' of fill gradient
 	char strokeGradient[64];	// Optional 'id' of stroke gradient
-	float xform[6];				// Root transformation for fill/stroke gradient
+	double xform[6];				// Root transformation for fill/stroke gradient
 	NSVGpath* paths;			// Linked list of paths in the image.
 	struct NSVGshape* next;		// Pointer to next shape, or NULL if last element.
 } NSVGshape;
 
 typedef struct NSVGimage
 {
-	float width;				// Width of the image.
-	float height;				// Height of the image.
+	double width;				// Width of the image.
+	double height;				// Height of the image.
 	NSVGshape* shapes;			// Linked list of shapes in the image.
 } NSVGimage;
 
 // Parses SVG file from a file, returns SVG image as paths.
-NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi, int scale_to_viewbox);
+NSVGimage* nsvgParseFromFile(const char* filename, const char* units, double dpi, int scale_to_viewbox);
 
 // Parses SVG file from a null terminated string, returns SVG image as paths.
 // Important note: changes the string.
-NSVGimage* nsvgParse(char* input, const char* units, float dpi, int scale_to_viewbox);
+NSVGimage* nsvgParse(char* input, const char* units, double dpi, int scale_to_viewbox);
 
 // Duplicates a path.
 NSVGpath* nsvgDuplicatePath(NSVGpath* p);
@@ -228,8 +228,8 @@ static int nsvg__isdigit(char c)
 	return c >= '0' && c <= '9';
 }
 
-static NSVG_INLINE float nsvg__minf(float a, float b) { return a < b ? a : b; }
-static NSVG_INLINE float nsvg__maxf(float a, float b) { return a > b ? a : b; }
+static NSVG_INLINE double nsvg__minf(double a, double b) { return a < b ? a : b; }
+static NSVG_INLINE double nsvg__maxf(double a, double b) { return a > b ? a : b; }
 
 
 // Simple XML parser
@@ -382,7 +382,7 @@ enum NSVGunits {
 };
 
 typedef struct NSVGcoordinate {
-	float value;
+	double value;
 	int units;
 } NSVGcoordinate;
 
@@ -405,7 +405,7 @@ typedef struct NSVGgradientData
 	};
 	char spread;
 	char units;
-	float xform[6];
+	double xform[6];
 	int nstops;
 	NSVGgradientStop* stops;
 	struct NSVGgradientData* next;
@@ -414,26 +414,26 @@ typedef struct NSVGgradientData
 typedef struct NSVGattrib
 {
 	char id[64];
-	float xform[6];
+	double xform[6];
 	unsigned int fillColor;
 	unsigned int strokeColor;
-	float opacity;
-	float fillOpacity;
-	float strokeOpacity;
+	double opacity;
+	double fillOpacity;
+	double strokeOpacity;
 	char fillGradient[64];
 	char strokeGradient[64];
-	float strokeWidth;
-	float strokeDashOffset;
-	float strokeDashArray[NSVG_MAX_DASHES];
+	double strokeWidth;
+	double strokeDashOffset;
+	double strokeDashArray[NSVG_MAX_DASHES];
 	int strokeDashCount;
 	char strokeLineJoin;
 	char strokeLineCap;
-	float miterLimit;
+	double miterLimit;
 	char fillRule;
-	float fontSize;
+	double fontSize;
 	unsigned int stopColor;
-	float stopOpacity;
-	float stopOffset;
+	double stopOpacity;
+	double stopOffset;
 	char hasFill;
 	char hasStroke;
 	char visible;
@@ -443,68 +443,68 @@ typedef struct NSVGparser
 {
 	NSVGattrib attr[NSVG_MAX_ATTR];
 	int attrHead;
-	float* pts;
+	double* pts;
 	int npts;
 	int cpts;
 	NSVGpath* plist;
 	NSVGimage* image;
 	NSVGgradientData* gradients;
 	NSVGshape* shapesTail;
-	float viewMinx, viewMiny, viewWidth, viewHeight;
+	double viewMinx, viewMiny, viewWidth, viewHeight;
 	int alignX, alignY, alignType;
-	float dpi;
+	double dpi;
 	char pathFlag;
 	char defsFlag;
 } NSVGparser;
 
-static void nsvg__xformIdentity(float* t)
+static void nsvg__xformIdentity(double* t)
 {
 	t[0] = 1.0f; t[1] = 0.0f;
 	t[2] = 0.0f; t[3] = 1.0f;
 	t[4] = 0.0f; t[5] = 0.0f;
 }
 
-static void nsvg__xformSetTranslation(float* t, float tx, float ty)
+static void nsvg__xformSetTranslation(double* t, double tx, double ty)
 {
 	t[0] = 1.0f; t[1] = 0.0f;
 	t[2] = 0.0f; t[3] = 1.0f;
 	t[4] = tx; t[5] = ty;
 }
 
-static void nsvg__xformSetScale(float* t, float sx, float sy)
+static void nsvg__xformSetScale(double* t, double sx, double sy)
 {
 	t[0] = sx; t[1] = 0.0f;
 	t[2] = 0.0f; t[3] = sy;
 	t[4] = 0.0f; t[5] = 0.0f;
 }
 
-static void nsvg__xformSetSkewX(float* t, float a)
+static void nsvg__xformSetSkewX(double* t, double a)
 {
 	t[0] = 1.0f; t[1] = 0.0f;
 	t[2] = tanf(a); t[3] = 1.0f;
 	t[4] = 0.0f; t[5] = 0.0f;
 }
 
-static void nsvg__xformSetSkewY(float* t, float a)
+static void nsvg__xformSetSkewY(double* t, double a)
 {
 	t[0] = 1.0f; t[1] = tanf(a);
 	t[2] = 0.0f; t[3] = 1.0f;
 	t[4] = 0.0f; t[5] = 0.0f;
 }
 
-static void nsvg__xformSetRotation(float* t, float a)
+static void nsvg__xformSetRotation(double* t, double a)
 {
-	float cs = cosf(a), sn = sinf(a);
+	double cs = cosf(a), sn = sinf(a);
 	t[0] = cs; t[1] = sn;
 	t[2] = -sn; t[3] = cs;
 	t[4] = 0.0f; t[5] = 0.0f;
 }
 
-static void nsvg__xformMultiply(float* t, float* s)
+static void nsvg__xformMultiply(double* t, double* s)
 {
-	float t0 = t[0] * s[0] + t[1] * s[2];
-	float t2 = t[2] * s[0] + t[3] * s[2];
-	float t4 = t[4] * s[0] + t[5] * s[2] + s[4];
+	double t0 = t[0] * s[0] + t[1] * s[2];
+	double t2 = t[2] * s[0] + t[3] * s[2];
+	double t4 = t[4] * s[0] + t[5] * s[2] + s[4];
 	t[1] = t[0] * s[1] + t[1] * s[3];
 	t[3] = t[2] * s[1] + t[3] * s[3];
 	t[5] = t[4] * s[1] + t[5] * s[3] + s[5];
@@ -513,7 +513,7 @@ static void nsvg__xformMultiply(float* t, float* s)
 	t[4] = t4;
 }
 
-static void nsvg__xformInverse(float* inv, float* t)
+static void nsvg__xformInverse(double* inv, double* t)
 {
 	double invdet, det = (double)t[0] * t[3] - (double)t[2] * t[1];
 	if (det > -1e-6 && det < 1e-6) {
@@ -521,29 +521,29 @@ static void nsvg__xformInverse(float* inv, float* t)
 		return;
 	}
 	invdet = 1.0 / det;
-	inv[0] = (float)(t[3] * invdet);
-	inv[2] = (float)(-t[2] * invdet);
-	inv[4] = (float)(((double)t[2] * t[5] - (double)t[3] * t[4]) * invdet);
-	inv[1] = (float)(-t[1] * invdet);
-	inv[3] = (float)(t[0] * invdet);
-	inv[5] = (float)(((double)t[1] * t[4] - (double)t[0] * t[5]) * invdet);
+	inv[0] = (double)(t[3] * invdet);
+	inv[2] = (double)(-t[2] * invdet);
+	inv[4] = (double)(((double)t[2] * t[5] - (double)t[3] * t[4]) * invdet);
+	inv[1] = (double)(-t[1] * invdet);
+	inv[3] = (double)(t[0] * invdet);
+	inv[5] = (double)(((double)t[1] * t[4] - (double)t[0] * t[5]) * invdet);
 }
 
-static void nsvg__xformPremultiply(float* t, float* s)
+static void nsvg__xformPremultiply(double* t, double* s)
 {
-	float s2[6];
-	memcpy(s2, s, sizeof(float)*6);
+	double s2[6];
+	memcpy(s2, s, sizeof(double)*6);
 	nsvg__xformMultiply(s2, t);
-	memcpy(t, s2, sizeof(float)*6);
+	memcpy(t, s2, sizeof(double)*6);
 }
 
-static void nsvg__xformPoint(float* dx, float* dy, float x, float y, float* t)
+static void nsvg__xformPoint(double* dx, double* dy, double x, double y, double* t)
 {
 	*dx = x*t[0] + y*t[2] + t[4];
 	*dy = x*t[1] + y*t[3] + t[5];
 }
 
-static void nsvg__xformVec(float* dx, float* dy, float x, float y, float* t)
+static void nsvg__xformVec(double* dx, double* dy, double x, double y, double* t)
 {
 	*dx = x*t[0] + y*t[2];
 	*dy = x*t[1] + y*t[3];
@@ -551,7 +551,7 @@ static void nsvg__xformVec(float* dx, float* dy, float x, float y, float* t)
 
 #define NSVG_EPSILON (1e-12)
 
-static int nsvg__ptInBounds(float* pt, float* bounds)
+static int nsvg__ptInBounds(double* pt, double* bounds)
 {
 	return pt[0] >= bounds[0] && pt[0] <= bounds[2] && pt[1] >= bounds[1] && pt[1] <= bounds[3];
 }
@@ -563,14 +563,14 @@ static double nsvg__evalBezier(double t, double p0, double p1, double p2, double
 	return it*it*it*p0 + 3.0*it*it*t*p1 + 3.0*it*t*t*p2 + t*t*t*p3;
 }
 
-static void nsvg__curveBounds(float* bounds, float* curve)
+static void nsvg__curveBounds(double* bounds, double* curve)
 {
 	int i, j, count;
 	double roots[2], a, b, c, b2ac, t, v;
-	float* v0 = &curve[0];
-	float* v1 = &curve[2];
-	float* v2 = &curve[4];
-	float* v3 = &curve[6];
+	double* v0 = &curve[0];
+	double* v1 = &curve[2];
+	double* v2 = &curve[4];
+	double* v3 = &curve[6];
 
 	// Start the bounding box by end points
 	bounds[0] = nsvg__minf(v0[0], v3[0]);
@@ -608,8 +608,8 @@ static void nsvg__curveBounds(float* bounds, float* curve)
 		}
 		for (j = 0; j < count; j++) {
 			v = nsvg__evalBezier(roots[j], v0[i], v1[i], v2[i], v3[i]);
-			bounds[0+i] = nsvg__minf(bounds[0+i], (float)v);
-			bounds[2+i] = nsvg__maxf(bounds[2+i], (float)v);
+			bounds[0+i] = nsvg__minf(bounds[0+i], (double)v);
+			bounds[2+i] = nsvg__maxf(bounds[2+i], (double)v);
 		}
 	}
 }
@@ -696,11 +696,11 @@ static void nsvg__resetPath(NSVGparser* p)
 	p->npts = 0;
 }
 
-static void nsvg__addPoint(NSVGparser* p, float x, float y)
+static void nsvg__addPoint(NSVGparser* p, double x, double y)
 {
 	if (p->npts+1 > p->cpts) {
 		p->cpts = p->cpts ? p->cpts*2 : 8;
-		p->pts = (float*)realloc(p->pts, p->cpts*2*sizeof(float));
+		p->pts = (double*)realloc(p->pts, p->cpts*2*sizeof(double));
 		if (!p->pts) return;
 	}
 	p->pts[p->npts*2+0] = x;
@@ -708,7 +708,7 @@ static void nsvg__addPoint(NSVGparser* p, float x, float y)
 	p->npts++;
 }
 
-static void nsvg__moveTo(NSVGparser* p, float x, float y)
+static void nsvg__moveTo(NSVGparser* p, double x, double y)
 {
 	if (p->npts > 0) {
 		p->pts[(p->npts-1)*2+0] = x;
@@ -718,9 +718,9 @@ static void nsvg__moveTo(NSVGparser* p, float x, float y)
 	}
 }
 
-static void nsvg__lineTo(NSVGparser* p, float x, float y)
+static void nsvg__lineTo(NSVGparser* p, double x, double y)
 {
-	float px,py, dx,dy;
+	double px,py, dx,dy;
 	if (p->npts > 0) {
 		px = p->pts[(p->npts-1)*2+0];
 		py = p->pts[(p->npts-1)*2+1];
@@ -732,7 +732,7 @@ static void nsvg__lineTo(NSVGparser* p, float x, float y)
 	}
 }
 
-static void nsvg__cubicBezTo(NSVGparser* p, float cpx1, float cpy1, float cpx2, float cpy2, float x, float y)
+static void nsvg__cubicBezTo(NSVGparser* p, double cpx1, double cpy1, double cpx2, double cpy2, double x, double y)
 {
 	if (p->npts > 0) {
 		nsvg__addPoint(p, cpx1, cpy1);
@@ -760,33 +760,33 @@ static void nsvg__popAttr(NSVGparser* p)
 		p->attrHead--;
 }
 
-static float nsvg__actualOrigX(NSVGparser* p)
+static double nsvg__actualOrigX(NSVGparser* p)
 {
 	return p->viewMinx;
 }
 
-static float nsvg__actualOrigY(NSVGparser* p)
+static double nsvg__actualOrigY(NSVGparser* p)
 {
 	return p->viewMiny;
 }
 
-static float nsvg__actualWidth(NSVGparser* p)
+static double nsvg__actualWidth(NSVGparser* p)
 {
 	return p->viewWidth;
 }
 
-static float nsvg__actualHeight(NSVGparser* p)
+static double nsvg__actualHeight(NSVGparser* p)
 {
 	return p->viewHeight;
 }
 
-static float nsvg__actualLength(NSVGparser* p)
+static double nsvg__actualLength(NSVGparser* p)
 {
-	float w = nsvg__actualWidth(p), h = nsvg__actualHeight(p);
+	double w = nsvg__actualWidth(p), h = nsvg__actualHeight(p);
 	return sqrtf(w*w + h*h) / sqrtf(2.0f);
 }
 
-static float nsvg__convertToPixels(NSVGparser* p, NSVGcoordinate c, float orig, float length)
+static double nsvg__convertToPixels(NSVGparser* p, NSVGcoordinate c, double orig, double length)
 {
 	NSVGattrib* attr = nsvg__getAttr(p);
 	switch (c.units) {
@@ -818,13 +818,13 @@ static NSVGgradientData* nsvg__findGradientData(NSVGparser* p, const char* id)
 	return NULL;
 }
 
-static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const float* localBounds, float *xform, signed char* paintType)
+static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const double* localBounds, double *xform, signed char* paintType)
 {
 	NSVGgradientData* data = NULL;
 	NSVGgradientData* ref = NULL;
 	NSVGgradientStop* stops = NULL;
 	NSVGgradient* grad;
-	float ox, oy, sw, sh, sl;
+	double ox, oy, sw, sh, sl;
 	int nstops = 0;
 	int refIter;
 
@@ -867,7 +867,7 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 	sl = sqrtf(sw*sw + sh*sh) / sqrtf(2.0f);
 
 	if (data->type == NSVG_PAINT_LINEAR_GRADIENT) {
-		float x1, y1, x2, y2, dx, dy;
+		double x1, y1, x2, y2, dx, dy;
 		x1 = nsvg__convertToPixels(p, data->linear.x1, ox, sw);
 		y1 = nsvg__convertToPixels(p, data->linear.y1, oy, sh);
 		x2 = nsvg__convertToPixels(p, data->linear.x2, ox, sw);
@@ -879,7 +879,7 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 		grad->xform[2] = dx; grad->xform[3] = dy;
 		grad->xform[4] = x1; grad->xform[5] = y1;
 	} else {
-		float cx, cy, fx, fy, r;
+		double cx, cy, fx, fy, r;
 		cx = nsvg__convertToPixels(p, data->radial.cx, ox, sw);
 		cy = nsvg__convertToPixels(p, data->radial.cy, oy, sh);
 		fx = nsvg__convertToPixels(p, data->radial.fx, ox, sw);
@@ -905,17 +905,17 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 	return grad;
 }
 
-static float nsvg__getAverageScale(float* t)
+static double nsvg__getAverageScale(double* t)
 {
-	float sx = sqrtf(t[0]*t[0] + t[2]*t[2]);
-	float sy = sqrtf(t[1]*t[1] + t[3]*t[3]);
+	double sx = sqrtf(t[0]*t[0] + t[2]*t[2]);
+	double sy = sqrtf(t[1]*t[1] + t[3]*t[3]);
 	return (sx + sy) * 0.5f;
 }
 
-static void nsvg__getLocalBounds(float* bounds, NSVGshape *shape, float* xform)
+static void nsvg__getLocalBounds(double* bounds, NSVGshape *shape, double* xform)
 {
 	NSVGpath* path;
-	float curve[4*2], curveBounds[4];
+	double curve[4*2], curveBounds[4];
 	int i, first = 1;
 	for (path = shape->paths; path != NULL; path = path->next) {
 		nsvg__xformPoint(&curve[0], &curve[1], path->pts[0], path->pts[1], xform);
@@ -945,7 +945,7 @@ static void nsvg__getLocalBounds(float* bounds, NSVGshape *shape, float* xform)
 static void nsvg__addShape(NSVGparser* p)
 {
 	NSVGattrib* attr = nsvg__getAttr(p);
-	float scale = 1.0f;
+	double scale = 1.0f;
 	NSVGshape* shape;
 	NSVGpath* path;
 	int i;
@@ -1030,8 +1030,8 @@ static void nsvg__addPath(NSVGparser* p, char closed)
 {
 	NSVGattrib* attr = nsvg__getAttr(p);
 	NSVGpath* path = NULL;
-	float bounds[4];
-	float* curve;
+	double bounds[4];
+	double* curve;
 	int i;
 
 	if (p->npts < 4)
@@ -1048,7 +1048,7 @@ static void nsvg__addPath(NSVGparser* p, char closed)
 	if (path == NULL) goto error;
 	memset(path, 0, sizeof(NSVGpath));
 
-	path->pts = (float*)malloc(p->npts*2*sizeof(float));
+	path->pts = (double*)malloc(p->npts*2*sizeof(double));
 	if (path->pts == NULL) goto error;
 	path->closed = closed;
 	path->npts = p->npts;
@@ -1086,7 +1086,7 @@ error:
 	}
 }
 
-// We roll our own string to float because the std library one uses locale and messes things up.
+// We roll our own string to double because the std library one uses locale and messes things up.
 static double nsvg__atof(const char* s)
 {
 	char* cur = (char*)s;
@@ -1238,10 +1238,10 @@ static unsigned int nsvg__parseColorRGB(const char* str)
 {
 	int i;
 	unsigned int rgbi[3];
-	float rgbf[3];
+	double rgbf[3];
 	// try decimal integers first
 	if (sscanf(str, "rgb(%u, %u, %u)", &rgbi[0], &rgbi[1], &rgbi[2]) != 3) {
-		// integers failed, try percent values (float, locale independent)
+		// integers failed, try percent values (double, locale independent)
 		const char delimiter[3] = {',', ',', ')'};
 		str += 4; // skip "rgb("
 		for (i = 0; i < 3; i++) {
@@ -1468,17 +1468,17 @@ static unsigned int nsvg__parseColor(const char* str)
 	return nsvg__parseColorName(str);
 }
 
-static float nsvg__parseOpacity(const char* str)
+static double nsvg__parseOpacity(const char* str)
 {
-	float val = nsvg__atof(str);
+	double val = nsvg__atof(str);
 	if (val < 0.0f) val = 0.0f;
 	if (val > 1.0f) val = 1.0f;
 	return val;
 }
 
-static float nsvg__parseMiterLimit(const char* str)
+static double nsvg__parseMiterLimit(const char* str)
 {
-	float val = nsvg__atof(str);
+	double val = nsvg__atof(str);
 	if (val < 0.0f) val = 0.0f;
 	return val;
 }
@@ -1524,19 +1524,19 @@ static NSVGcoordinate nsvg__parseCoordinateRaw(const char* str)
 	return coord;
 }
 
-static NSVGcoordinate nsvg__coord(float v, int units)
+static NSVGcoordinate nsvg__coord(double v, int units)
 {
 	NSVGcoordinate coord = {v, units};
 	return coord;
 }
 
-static float nsvg__parseCoordinate(NSVGparser* p, const char* str, float orig, float length)
+static double nsvg__parseCoordinate(NSVGparser* p, const char* str, double orig, double length)
 {
 	NSVGcoordinate coord = nsvg__parseCoordinateRaw(str);
 	return nsvg__convertToPixels(p, coord, orig, length);
 }
 
-static int nsvg__parseTransformArgs(const char* str, float* args, int maxNa, int* na)
+static int nsvg__parseTransformArgs(const char* str, double* args, int maxNa, int* na)
 {
 	const char* end;
 	const char* ptr;
@@ -1556,7 +1556,7 @@ static int nsvg__parseTransformArgs(const char* str, float* args, int maxNa, int
 		if (*ptr == '-' || *ptr == '+' || *ptr == '.' || nsvg__isdigit(*ptr)) {
 			if (*na >= maxNa) return 0;
 			ptr = nsvg__parseNumber(ptr, it, 64);
-			args[(*na)++] = (float)nsvg__atof(it);
+			args[(*na)++] = (double)nsvg__atof(it);
 		} else {
 			++ptr;
 		}
@@ -1565,69 +1565,69 @@ static int nsvg__parseTransformArgs(const char* str, float* args, int maxNa, int
 }
 
 
-static int nsvg__parseMatrix(float* xform, const char* str)
+static int nsvg__parseMatrix(double* xform, const char* str)
 {
-	float t[6];
+	double t[6];
 	int na = 0;
 	int len = nsvg__parseTransformArgs(str, t, 6, &na);
 	if (na != 6) return len;
-	memcpy(xform, t, sizeof(float)*6);
+	memcpy(xform, t, sizeof(double)*6);
 	return len;
 }
 
-static int nsvg__parseTranslate(float* xform, const char* str)
+static int nsvg__parseTranslate(double* xform, const char* str)
 {
-	float args[2];
-	float t[6];
+	double args[2];
+	double t[6];
 	int na = 0;
 	int len = nsvg__parseTransformArgs(str, args, 2, &na);
 	if (na == 1) args[1] = 0.0;
 
 	nsvg__xformSetTranslation(t, args[0], args[1]);
-	memcpy(xform, t, sizeof(float)*6);
+	memcpy(xform, t, sizeof(double)*6);
 	return len;
 }
 
-static int nsvg__parseScale(float* xform, const char* str)
+static int nsvg__parseScale(double* xform, const char* str)
 {
-	float args[2];
+	double args[2];
 	int na = 0;
-	float t[6];
+	double t[6];
 	int len = nsvg__parseTransformArgs(str, args, 2, &na);
 	if (na == 1) args[1] = args[0];
 	nsvg__xformSetScale(t, args[0], args[1]);
-	memcpy(xform, t, sizeof(float)*6);
+	memcpy(xform, t, sizeof(double)*6);
 	return len;
 }
 
-static int nsvg__parseSkewX(float* xform, const char* str)
+static int nsvg__parseSkewX(double* xform, const char* str)
 {
-	float args[1];
+	double args[1];
 	int na = 0;
-	float t[6];
+	double t[6];
 	int len = nsvg__parseTransformArgs(str, args, 1, &na);
 	nsvg__xformSetSkewX(t, args[0]/180.0f*NSVG_PI);
-	memcpy(xform, t, sizeof(float)*6);
+	memcpy(xform, t, sizeof(double)*6);
 	return len;
 }
 
-static int nsvg__parseSkewY(float* xform, const char* str)
+static int nsvg__parseSkewY(double* xform, const char* str)
 {
-	float args[1];
+	double args[1];
 	int na = 0;
-	float t[6];
+	double t[6];
 	int len = nsvg__parseTransformArgs(str, args, 1, &na);
 	nsvg__xformSetSkewY(t, args[0]/180.0f*NSVG_PI);
-	memcpy(xform, t, sizeof(float)*6);
+	memcpy(xform, t, sizeof(double)*6);
 	return len;
 }
 
-static int nsvg__parseRotate(float* xform, const char* str)
+static int nsvg__parseRotate(double* xform, const char* str)
 {
-	float args[3];
+	double args[3];
 	int na = 0;
-	float m[6];
-	float t[6];
+	double m[6];
+	double t[6];
 	int len = nsvg__parseTransformArgs(str, args, 3, &na);
 	if (na == 1)
 		args[1] = args[2] = 0.0f;
@@ -1646,14 +1646,14 @@ static int nsvg__parseRotate(float* xform, const char* str)
 		nsvg__xformMultiply(m, t);
 	}
 
-	memcpy(xform, m, sizeof(float)*6);
+	memcpy(xform, m, sizeof(double)*6);
 
 	return len;
 }
 
-static void nsvg__parseTransform(float* xform, const char* str)
+static void nsvg__parseTransform(double* xform, const char* str)
 {
-	float t[6];
+	double t[6];
 	int len;
 	nsvg__xformIdentity(xform);
 	while (*str)
@@ -1748,11 +1748,11 @@ static const char* nsvg__getNextDashItem(const char* s, char* it)
 	return s;
 }
 
-static int nsvg__parseStrokeDashArray(NSVGparser* p, const char* str, float* strokeDashArray)
+static int nsvg__parseStrokeDashArray(NSVGparser* p, const char* str, double* strokeDashArray)
 {
 	char item[64];
 	int count = 0, i;
-	float sum = 0.0f;
+	double sum = 0.0f;
 
 	// Handle "none"
 	if (str[0] == 'n')
@@ -1778,7 +1778,7 @@ static void nsvg__parseStyle(NSVGparser* p, const char* str);
 
 static int nsvg__parseAttr(NSVGparser* p, const char* name, const char* value)
 {
-	float xform[6];
+	double xform[6];
 	NSVGattrib* attr = nsvg__getAttr(p);
 	if (!attr) return 0;
 
@@ -1947,7 +1947,7 @@ static int nsvg__getArgsPerElement(char cmd)
 	return -1;
 }
 
-static void nsvg__pathMoveTo(NSVGparser* p, float* cpx, float* cpy, float* args, int rel)
+static void nsvg__pathMoveTo(NSVGparser* p, double* cpx, double* cpy, double* args, int rel)
 {
 	if (rel) {
 		*cpx += args[0];
@@ -1959,7 +1959,7 @@ static void nsvg__pathMoveTo(NSVGparser* p, float* cpx, float* cpy, float* args,
 	nsvg__moveTo(p, *cpx, *cpy);
 }
 
-static void nsvg__pathLineTo(NSVGparser* p, float* cpx, float* cpy, float* args, int rel)
+static void nsvg__pathLineTo(NSVGparser* p, double* cpx, double* cpy, double* args, int rel)
 {
 	if (rel) {
 		*cpx += args[0];
@@ -1971,7 +1971,7 @@ static void nsvg__pathLineTo(NSVGparser* p, float* cpx, float* cpy, float* args,
 	nsvg__lineTo(p, *cpx, *cpy);
 }
 
-static void nsvg__pathHLineTo(NSVGparser* p, float* cpx, float* cpy, float* args, int rel)
+static void nsvg__pathHLineTo(NSVGparser* p, double* cpx, double* cpy, double* args, int rel)
 {
 	if (rel)
 		*cpx += args[0];
@@ -1980,7 +1980,7 @@ static void nsvg__pathHLineTo(NSVGparser* p, float* cpx, float* cpy, float* args
 	nsvg__lineTo(p, *cpx, *cpy);
 }
 
-static void nsvg__pathVLineTo(NSVGparser* p, float* cpx, float* cpy, float* args, int rel)
+static void nsvg__pathVLineTo(NSVGparser* p, double* cpx, double* cpy, double* args, int rel)
 {
 	if (rel)
 		*cpy += args[0];
@@ -1989,10 +1989,10 @@ static void nsvg__pathVLineTo(NSVGparser* p, float* cpx, float* cpy, float* args
 	nsvg__lineTo(p, *cpx, *cpy);
 }
 
-static void nsvg__pathCubicBezTo(NSVGparser* p, float* cpx, float* cpy,
-								 float* cpx2, float* cpy2, float* args, int rel)
+static void nsvg__pathCubicBezTo(NSVGparser* p, double* cpx, double* cpy,
+								 double* cpx2, double* cpy2, double* args, int rel)
 {
-	float x2, y2, cx1, cy1, cx2, cy2;
+	double x2, y2, cx1, cy1, cx2, cy2;
 
 	if (rel) {
 		cx1 = *cpx + args[0];
@@ -2018,10 +2018,10 @@ static void nsvg__pathCubicBezTo(NSVGparser* p, float* cpx, float* cpy,
 	*cpy = y2;
 }
 
-static void nsvg__pathCubicBezShortTo(NSVGparser* p, float* cpx, float* cpy,
-									  float* cpx2, float* cpy2, float* args, int rel)
+static void nsvg__pathCubicBezShortTo(NSVGparser* p, double* cpx, double* cpy,
+									  double* cpx2, double* cpy2, double* args, int rel)
 {
-	float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
+	double x1, y1, x2, y2, cx1, cy1, cx2, cy2;
 
 	x1 = *cpx;
 	y1 = *cpy;
@@ -2048,11 +2048,11 @@ static void nsvg__pathCubicBezShortTo(NSVGparser* p, float* cpx, float* cpy,
 	*cpy = y2;
 }
 
-static void nsvg__pathQuadBezTo(NSVGparser* p, float* cpx, float* cpy,
-								float* cpx2, float* cpy2, float* args, int rel)
+static void nsvg__pathQuadBezTo(NSVGparser* p, double* cpx, double* cpy,
+								double* cpx2, double* cpy2, double* args, int rel)
 {
-	float x1, y1, x2, y2, cx, cy;
-	float cx1, cy1, cx2, cy2;
+	double x1, y1, x2, y2, cx, cy;
+	double cx1, cy1, cx2, cy2;
 
 	x1 = *cpx;
 	y1 = *cpy;
@@ -2082,11 +2082,11 @@ static void nsvg__pathQuadBezTo(NSVGparser* p, float* cpx, float* cpy,
 	*cpy = y2;
 }
 
-static void nsvg__pathQuadBezShortTo(NSVGparser* p, float* cpx, float* cpy,
-									 float* cpx2, float* cpy2, float* args, int rel)
+static void nsvg__pathQuadBezShortTo(NSVGparser* p, double* cpx, double* cpy,
+									 double* cpx2, double* cpy2, double* args, int rel)
 {
-	float x1, y1, x2, y2, cx, cy;
-	float cx1, cy1, cx2, cy2;
+	double x1, y1, x2, y2, cx, cy;
+	double cx1, cy1, cx2, cy2;
 
 	x1 = *cpx;
 	y1 = *cpy;
@@ -2115,34 +2115,34 @@ static void nsvg__pathQuadBezShortTo(NSVGparser* p, float* cpx, float* cpy,
 	*cpy = y2;
 }
 
-static float nsvg__sqr(float x) { return x*x; }
-static float nsvg__vmag(float x, float y) { return sqrtf(x*x + y*y); }
+static double nsvg__sqr(double x) { return x*x; }
+static double nsvg__vmag(double x, double y) { return sqrtf(x*x + y*y); }
 
-static float nsvg__vecrat(float ux, float uy, float vx, float vy)
+static double nsvg__vecrat(double ux, double uy, double vx, double vy)
 {
 	return (ux*vx + uy*vy) / (nsvg__vmag(ux,uy) * nsvg__vmag(vx,vy));
 }
 
-static float nsvg__vecang(float ux, float uy, float vx, float vy)
+static double nsvg__vecang(double ux, double uy, double vx, double vy)
 {
-	float r = nsvg__vecrat(ux,uy, vx,vy);
+	double r = nsvg__vecrat(ux,uy, vx,vy);
 	if (r < -1.0f) r = -1.0f;
 	if (r > 1.0f) r = 1.0f;
 	return ((ux*vy < uy*vx) ? -1.0f : 1.0f) * acosf(r);
 }
 
-static void nsvg__pathArcTo(NSVGparser* p, float* cpx, float* cpy, float* args, int rel)
+static void nsvg__pathArcTo(NSVGparser* p, double* cpx, double* cpy, double* args, int rel)
 {
 	// Ported from canvg (https://code.google.com/p/canvg/)
-	float rx, ry, rotx;
-	float x1, y1, x2, y2, cx, cy, dx, dy, d;
-	float x1p, y1p, cxp, cyp, s, sa, sb;
-	float ux, uy, vx, vy, a1, da;
-	float x, y, tanx, tany, a, px = 0, py = 0, ptanx = 0, ptany = 0, t[6];
-	float sinrx, cosrx;
+	double rx, ry, rotx;
+	double x1, y1, x2, y2, cx, cy, dx, dy, d;
+	double x1p, y1p, cxp, cyp, s, sa, sb;
+	double ux, uy, vx, vy, a1, da;
+	double x, y, tanx, tany, a, px = 0, py = 0, ptanx = 0, ptany = 0, t[6];
+	double sinrx, cosrx;
 	int fa, fs;
 	int i, ndivs;
-	float hda, kappa;
+	double hda, kappa;
 
 	rx = fabsf(args[0]);				// y radius
 	ry = fabsf(args[1]);				// x radius
@@ -2224,7 +2224,7 @@ static void nsvg__pathArcTo(NSVGparser* p, float* cpx, float* cpy, float* args, 
 	// Split arc into max 90 degree segments.
 	// The loop assumes an iteration per end point (including start and end), this +1.
 	ndivs = (int)(fabsf(da) / (NSVG_PI*0.5f) + 1.0f);
-	hda = (da / (float)ndivs) / 2.0f;
+	hda = (da / (double)ndivs) / 2.0f;
 	// Fix for ticket #179: division by 0: avoid cotangens around 0 (infinite)
 	if ((hda < 1e-3f) && (hda > -1e-3f))
 		hda *= 0.5f;
@@ -2235,7 +2235,7 @@ static void nsvg__pathArcTo(NSVGparser* p, float* cpx, float* cpy, float* args, 
 		kappa = -kappa;
 
 	for (i = 0; i <= ndivs; i++) {
-		a = a1 + da * ((float)i/(float)ndivs);
+		a = a1 + da * ((double)i/(double)ndivs);
 		dx = cosf(a);
 		dy = sinf(a);
 		nsvg__xformPoint(&x, &y, dx*rx, dy*ry, t); // position
@@ -2256,11 +2256,11 @@ static void nsvg__parsePath(NSVGparser* p, const char** attr)
 {
 	const char* s = NULL;
 	char cmd = '\0';
-	float args[10];
+	double args[10];
 	int nargs;
 	int rargs = 0;
 	char initPoint;
-	float cpx, cpy, cpx2, cpy2;
+	double cpx, cpy, cpx2, cpy2;
 	const char* tmp[4];
 	char closedFlag;
 	int i;
@@ -2295,7 +2295,7 @@ static void nsvg__parsePath(NSVGparser* p, const char** attr)
 			if (!*item) break;
 			if (cmd != '\0' && nsvg__isCoordinate(item)) {
 				if (nargs < 10)
-					args[nargs++] = (float)nsvg__atof(item);
+					args[nargs++] = (double)nsvg__atof(item);
 				if (nargs >= rargs) {
 					switch (cmd) {
 						case 'm':
@@ -2402,12 +2402,12 @@ static void nsvg__parsePath(NSVGparser* p, const char** attr)
 
 static void nsvg__parseRect(NSVGparser* p, const char** attr)
 {
-	float x = 0.0f;
-	float y = 0.0f;
-	float w = 0.0f;
-	float h = 0.0f;
-	float rx = -1.0f; // marks not set
-	float ry = -1.0f;
+	double x = 0.0f;
+	double y = 0.0f;
+	double w = 0.0f;
+	double h = 0.0f;
+	double rx = -1.0f; // marks not set
+	double ry = -1.0f;
 	int i;
 
 	for (i = 0; attr[i]; i += 2) {
@@ -2457,9 +2457,9 @@ static void nsvg__parseRect(NSVGparser* p, const char** attr)
 
 static void nsvg__parseCircle(NSVGparser* p, const char** attr)
 {
-	float cx = 0.0f;
-	float cy = 0.0f;
-	float r = 0.0f;
+	double cx = 0.0f;
+	double cy = 0.0f;
+	double r = 0.0f;
 	int i;
 
 	for (i = 0; attr[i]; i += 2) {
@@ -2487,10 +2487,10 @@ static void nsvg__parseCircle(NSVGparser* p, const char** attr)
 
 static void nsvg__parseEllipse(NSVGparser* p, const char** attr)
 {
-	float cx = 0.0f;
-	float cy = 0.0f;
-	float rx = 0.0f;
-	float ry = 0.0f;
+	double cx = 0.0f;
+	double cy = 0.0f;
+	double rx = 0.0f;
+	double ry = 0.0f;
 	int i;
 
 	for (i = 0; attr[i]; i += 2) {
@@ -2520,10 +2520,10 @@ static void nsvg__parseEllipse(NSVGparser* p, const char** attr)
 
 static void nsvg__parseLine(NSVGparser* p, const char** attr)
 {
-	float x1 = 0.0;
-	float y1 = 0.0;
-	float x2 = 0.0;
-	float y2 = 0.0;
+	double x1 = 0.0;
+	double y1 = 0.0;
+	double x2 = 0.0;
+	double y2 = 0.0;
 	int i;
 
 	for (i = 0; attr[i]; i += 2) {
@@ -2549,7 +2549,7 @@ static void nsvg__parsePoly(NSVGparser* p, const char** attr, int closeFlag)
 {
 	int i;
 	const char* s;
-	float args[2];
+	double args[2];
 	int nargs, npts = 0;
 	char item[64];
 
@@ -2562,7 +2562,7 @@ static void nsvg__parsePoly(NSVGparser* p, const char** attr, int closeFlag)
 				nargs = 0;
 				while (*s) {
 					s = nsvg__getNextPathItem(s, item);
-					args[nargs++] = (float)nsvg__atof(item);
+					args[nargs++] = (double)nsvg__atof(item);
 					if (nargs >= 2) {
 						if (npts == 0)
 							nsvg__moveTo(p, args[0], args[1]);
@@ -2830,7 +2830,7 @@ static void nsvg__content(void* ud, const char* s)
 	// empty
 }
 
-static void nsvg__imageBounds(NSVGparser* p, float* bounds)
+static void nsvg__imageBounds(NSVGparser* p, double* bounds)
 {
 	NSVGshape* shape;
 	shape = p->image->shapes;
@@ -2850,7 +2850,7 @@ static void nsvg__imageBounds(NSVGparser* p, float* bounds)
 	}
 }
 
-static float nsvg__viewAlign(float content, float container, int type)
+static double nsvg__viewAlign(double content, double container, int type)
 {
 	if (type == NSVG_ALIGN_MIN)
 		return 0;
@@ -2860,9 +2860,9 @@ static float nsvg__viewAlign(float content, float container, int type)
 	return (container - content) * 0.5f;
 }
 
-static void nsvg__scaleGradient(NSVGgradient* grad, float tx, float ty, float sx, float sy)
+static void nsvg__scaleGradient(NSVGgradient* grad, double tx, double ty, double sx, double sy)
 {
-	float t[6];
+	double t[6];
 	nsvg__xformSetTranslation(t, tx, ty);
 	nsvg__xformMultiply (grad->xform, t);
 
@@ -2874,9 +2874,9 @@ static void nsvg__scaleToViewbox(NSVGparser* p, const char* units)
 {
 	NSVGshape* shape;
 	NSVGpath* path;
-	float tx, ty, sx, sy, us, bounds[4], t[6], avgs;
+	double tx, ty, sx, sy, us, bounds[4], t[6], avgs;
 	int i;
-	float* pt;
+	double* pt;
 
 	// Guess image size if not set completely.
 	nsvg__imageBounds(p, bounds);
@@ -2945,12 +2945,12 @@ static void nsvg__scaleToViewbox(NSVGparser* p, const char* units)
 
 		if (shape->fill.type == NSVG_PAINT_LINEAR_GRADIENT || shape->fill.type == NSVG_PAINT_RADIAL_GRADIENT) {
 			nsvg__scaleGradient(shape->fill.gradient, tx,ty, sx,sy);
-			memcpy(t, shape->fill.gradient->xform, sizeof(float)*6);
+			memcpy(t, shape->fill.gradient->xform, sizeof(double)*6);
 			nsvg__xformInverse(shape->fill.gradient->xform, t);
 		}
 		if (shape->stroke.type == NSVG_PAINT_LINEAR_GRADIENT || shape->stroke.type == NSVG_PAINT_RADIAL_GRADIENT) {
 			nsvg__scaleGradient(shape->stroke.gradient, tx,ty, sx,sy);
-			memcpy(t, shape->stroke.gradient->xform, sizeof(float)*6);
+			memcpy(t, shape->stroke.gradient->xform, sizeof(double)*6);
 			nsvg__xformInverse(shape->stroke.gradient->xform, t);
 		}
 
@@ -2968,7 +2968,7 @@ static void nsvg__createGradients(NSVGparser* p)
 	for (shape = p->image->shapes; shape != NULL; shape = shape->next) {
 		if (shape->fill.type == NSVG_PAINT_UNDEF) {
 			if (shape->fillGradient[0] != '\0') {
-				float inv[6], localBounds[4];
+				double inv[6], localBounds[4];
 				nsvg__xformInverse(inv, shape->xform);
 				nsvg__getLocalBounds(localBounds, shape, inv);
 				shape->fill.gradient = nsvg__createGradient(p, shape->fillGradient, localBounds, shape->xform, &shape->fill.type);
@@ -2979,7 +2979,7 @@ static void nsvg__createGradients(NSVGparser* p)
 		}
 		if (shape->stroke.type == NSVG_PAINT_UNDEF) {
 			if (shape->strokeGradient[0] != '\0') {
-				float inv[6], localBounds[4];
+				double inv[6], localBounds[4];
 				nsvg__xformInverse(inv, shape->xform);
 				nsvg__getLocalBounds(localBounds, shape, inv);
 				shape->stroke.gradient = nsvg__createGradient(p, shape->strokeGradient, localBounds, shape->xform, &shape->stroke.type);
@@ -2991,7 +2991,7 @@ static void nsvg__createGradients(NSVGparser* p)
 	}
 }
 
-NSVGimage* nsvgParse(char* input, const char* units, float dpi, int scale_to_viewbox)
+NSVGimage* nsvgParse(char* input, const char* units, double dpi, int scale_to_viewbox)
 {
 	NSVGparser* p;
 	NSVGimage* ret = 0;
@@ -3021,7 +3021,7 @@ NSVGimage* nsvgParse(char* input, const char* units, float dpi, int scale_to_vie
 	return ret;
 }
 
-NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi, int scale_to_viewbox)
+NSVGimage* nsvgParseFromFile(const char* filename, const char* units, double dpi, int scale_to_viewbox)
 {
 	FILE* fp = NULL;
 	size_t size;
@@ -3061,9 +3061,9 @@ NSVGpath* nsvgDuplicatePath(NSVGpath* p)
     if (res == NULL) goto error;
     memset(res, 0, sizeof(NSVGpath));
 
-    res->pts = (float*)malloc(p->npts*2*sizeof(float));
+    res->pts = (double*)malloc(p->npts*2*sizeof(double));
     if (res->pts == NULL) goto error;
-    memcpy(res->pts, p->pts, p->npts * sizeof(float) * 2);
+    memcpy(res->pts, p->pts, p->npts * sizeof(double) * 2);
     res->npts = p->npts;
 
     memcpy(res->bounds, p->bounds, sizeof(p->bounds));
